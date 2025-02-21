@@ -1,8 +1,8 @@
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 // Add to cart function
-function addToCart(productId, unitPrice, maxQuantity, userName) {
+function addToCart(productId, unitPrice, maxQuantity, productName) { // Add productName parameter
     const quantityInput = document.getElementById(`qty-${productId}`);
-    const quantity = parseInt(quantityInput.value);
+    const quantity = Number(quantityInput.value);
 
     if (isNaN(quantity) || quantity < 1 || quantity > maxQuantity) {
         alert(`Please enter a valid quantity between 1 and ${maxQuantity}`);
@@ -15,10 +15,10 @@ function addToCart(productId, unitPrice, maxQuantity, userName) {
         existingItem.quantity += quantity;
     } else {
         cart.push({
-            productId: productId,
-            quantity: quantity,
-            unitPrice: unitPrice,
-            name: document.querySelector(`#qty-${productId}`).closest('.card').querySelector('.card-title').innerText
+            productId: String(productId),
+            quantity: Number(quantity),
+            unitPrice: Number(unitPrice),
+            name: String(productName)
         });
     }
 
@@ -105,54 +105,46 @@ function updateCartStorage() {
 }
 // Checkout function
 // Modified checkout function
-async function checkout() {
+function checkout() {
     if (cart.length === 0) {
         alert('Your cart is empty!');
         return;
     }
 
     const user = auth.currentUser;
-    if (!user) {
-        alert('Please log in to checkout');
-        return;
-    }
+    const order = {
+        userId: user.uid,
+        items: cart,
+        total: parseFloat(document.getElementById('cart-total').textContent),
+        status: 'pending',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
 
-    try {
-        // Get user document to fetch name
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        const userName = userDoc.exists ? userDoc.data().name : 'Unknown User';
-
-        const order = {
-            userId: user.uid,
-            userName: userName,  // Add user's name to order
-            items: cart,
-            total: parseFloat(document.getElementById('cart-total').textContent),
-            status: 'pending',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        const batch = db.batch();
-        const orderRef = db.collection('orders').doc();
-        
-        batch.set(orderRef, order);
-        
-        cart.forEach(item => {
-            const productRef = db.collection('products').doc(item.productId);
-            batch.update(productRef, {
-                quantity: firebase.firestore.FieldValue.increment(-item.quantity)
-            });
+    // Batch write to update product quantities and create order
+    const batch = db.batch();
+    const orderRef = db.collection('orders').doc();
+    
+    batch.set(orderRef, order);
+    
+    cart.forEach(item => {
+        const productRef = db.collection('products').doc(item.productId);
+        batch.update(productRef, {
+            quantity: firebase.firestore.FieldValue.increment(-item.quantity)
         });
+    });
 
-        await batch.commit();
-        alert('Order placed successfully!');
-        cart = [];
-        removeFromCart();
-        updateCartStorage();
-        loadUserProducts();
-    } catch (error) {
-        console.error('Error placing order:', error);
-        alert('Error placing order: ' + error.message);
-    }
+    batch.commit()
+        .then(() => {
+            alert('Order placed successfully!');
+            cart = [];
+            updateCartStorage();
+            loadUserProducts();
+           
+        })
+        .catch(error => {
+            console.error('Error placing order:', error);
+            alert('Error placing order: ' + error.message);
+        });
 }
 function viewCart() {
     updateCartDisplay();

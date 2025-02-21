@@ -10,7 +10,9 @@ body {
     min-height: 100vh;
     font-family: 'Segoe UI', system-ui, sans-serif;
 }
-
+.highlight {
+    background-color: #ffff99; /* Light yellow background */
+    transition: background-color 0.5s ease;}
 .product-card {
     transition: transform 0.2s, box-shadow 0.2s;
     border: none;
@@ -18,7 +20,50 @@ body {
     overflow: hidden;
     background: white;
 }
+.floating-action {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+.logo {
+    height: 40px;
+    width: auto;
+}
 
+.floating-action {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.floating-action .btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+@media (max-width: 768px) {
+    .logo {
+        height: 30px;
+    }
+    .floating-action {
+        bottom: 70px;
+        right: 15px;
+    }
+}
+.floating-action .btn {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .product-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
@@ -770,7 +815,26 @@ button,
 input {
     touch-action: manipulation;
 }
+/* Add these styles */
+#user-search-results {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+}
 
+.list-group-item-action {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.list-group-item-action:hover {
+    background-color: #f8f9fa;
+}
+
+#remaining-balance {
+    font-size: 1.25rem;
+}
 /* Profile Section Styles */
 #user-orders-list .list-group-item {
     border-radius: 0.5rem;

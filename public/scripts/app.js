@@ -36,6 +36,10 @@ document.getElementById('products-content').classList.add('show', 'active');
 document.getElementById('orders-content').classList.remove('show', 'active');
 e.target.classList.add('active');
 document.getElementById('orders-tab').classList.remove('active');
+document.getElementById('payments-tab').classList.remove('active');
+
+document.getElementById('payments-content').classList.remove('show', 'active');
+
 
 });
 document.getElementById('orders-tab').addEventListener('click', (e) => {
@@ -44,8 +48,12 @@ document.getElementById('products-list').classList.add('show', 'active');
 document.getElementById('products-content').classList.remove('show', 'active');
 e.target.classList.add('active');
 document.getElementById('products-tab').classList.remove('active');
+document.getElementById('payments-tab').classList.remove('active');
+
+document.getElementById('payments-content').classList.remove('show', 'active');
 
 });
+
 document.getElementById('order-search').addEventListener('input', function(e) {
     loadAdminOrders(e.target.value);
 });
@@ -62,4 +70,16 @@ document.getElementById('signup-tab').addEventListener('click', (e) => {
     document.getElementById('login-form').style.display = 'none';
     e.target.classList.add('active');
     document.getElementById('login-tab').classList.remove('active');
+});
+document.getElementById('payments-tab').addEventListener('click', (e) => {
+    e.preventDefault();
+
+    document.getElementById('payments-content').classList.add('show', 'active');
+    document.getElementById('orders-content').classList.remove('show', 'active');
+    document.getElementById('products-tab').classList.remove('active');
+    document.getElementById('products-content').classList.remove('show','active')
+
+    e.target.classList.add('active');
+    document.getElementById('orders-tab').classList.remove('active');
+    
 });
