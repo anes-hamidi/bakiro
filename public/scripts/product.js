@@ -179,35 +179,40 @@ function loadUserProducts() {
                     const productId = doc.id;
                     
                     container.innerHTML += `
-                        <div class="col">
-                            <div class="card h-100">
-                                <div class="card-body">
-                                    <h5 class="card-title">${product.name}</h5>
-                                    <div class="card-text">
-                                        <div>Capacity: ${product.capacity}</div>
-                                        <div>Flavor: ${product.flavor}</div>
-                                        <div class="text-success">Price: $${product.unitPrice.toFixed(2)}</div>
-                                        <div>Available: ${product.quantity}</div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <div class="input-group">
-                                            <input type="number" 
-                                                id="qty-${productId}"
-                                                class="form-control" 
-                                                value="1" 
-                                                min="1" 
-                                                max="${product.quantity}"
-                                                aria-label="Quantity">
-                                             <button class="btn btn-primary" 
-                    onclick="addToCart('${productId}', ${product.unitPrice}, ${product.quantity}, '${product.name}')">
-                    Add to Cart
-                </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+    <div class="list-group-item mb-3">
+        <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+                <h6 class="mb-1">${product.name}</h6>
+                <small class="text-muted">
+                    • Capacity: <span style="font-weight: 500;">${product.capacity}</span>
+                    • Flavor: <span style="font-weight: 500;">${product.flavor}</span>
+                    • Price: <span style="font-weight: bold; color: #28a745;">$${product.unitPrice.toFixed(2)}</span>
+                    • Available: <span style="font-weight: bold; color: ${product.quantity > 0 ? '#007bff' : '#dc3545'}">${product.quantity}</span>
+                </small>
+            </div>
+            <div class="d-flex flex-column align-items-end ms-3">
+                <div class="input-group" style="width: 180px;">
+                    <input type="number" 
+                        id="qty-${productId}"
+                        class="form-control" 
+                        value="1" 
+                        min="1" 
+                        max="${product.quantity}"
+                        aria-label="Quantity"
+                        style="width: 70px;">
+                    <button class="btn btn-sm btn-primary" 
+                        onclick="addToCart('${productId}', ${product.unitPrice}, ${product.quantity}, '${product.name}')"
+                        ${product.quantity === 0 ? 'disabled' : ''}>
+                        <i class="bi bi-cart-plus"></i> Add
+                    </button>
+                </div>
+                ${product.quantity === 0 ? 
+                    '<small class="text-danger mt-1">Out of Stock</small>' : 
+                    '<small class="text-muted mt-1">Max: ${product.quantity}</small>'}
+            </div>
+        </div>
+    </div>
+`;
                 });
             })
             .catch(error => {
