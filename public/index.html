@@ -64,6 +64,10 @@
                                 <input type="email" class="form-control" id="email" required>
                             </div>
                             <div class="mb-3">
+                                <label for="email" class="form-label">Phone Number</label>
+                                <input type="phone" class="form-control" id="phone" required>
+                            </div>
+                            <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
                                 <input type="password" class="form-control" id="password" required>
                             </div>
@@ -139,9 +143,8 @@
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-4">
-                                <input type="text" class="form-control" 
-                                       id="order-search" 
-                                       placeholder="Search orders...">
+                                <input type="text" class="form-control" id="order-search"
+                                    placeholder="Search orders...">
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -152,12 +155,84 @@
                     </div>
                 </div>
             </div>
+
+
             <div id="payments-content" class="tab-pane fade">
-                <div class="card mt-4">
+                <div class="card mt-4" id="paymentM">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h4>Payment Management</h4>
+                        
+                    </div>
+                    <div class="card-body">
+                        <form id="payment-form">
+                            <div class="mb-3">
+                                <label for="user-search" class="form-label">Search User (ID or Name)</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="user-search"
+                                        placeholder="Start typing...">
+                                    <button class="btn btn-outline-secondary" type="button" onclick="clearUserSearch()">
+
+                                        <i class="bi bi-x"></i>
+                                    </button>
+
+                                </div>
+                                <div id="user-search-results" class="mt-2 list-group"></div>
+                            </div>
+
+                            <div id="selected-user-info">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">User Details</h5>
+                                        <p class="mb-1"><strong>Name:</strong> <span id="user-name"></span></p>
+                                        <p class="mb-1"><strong>Email:</strong> <span id="user-email"></span></p>
+                                        <p class="mb-0"><strong>User ID:</strong> <span id="user-id"></span></p>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Financial Summary</h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="mb-1">Total Orders: <span id="total-orders"
+                                                        class="fw-bold">0.00</span> DZ</p>
+                                                <p class="mb-1">Total Paid: <span id="total-paid"
+                                                        class="fw-bold">0.00</span> DZ</p>
+                                                <p class="mb-0">Remaining: <span id="remaining-balance"
+                                                        class="fw-bold text-danger">0.00</span> DZ</p>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="payment-amount" class="form-label">Payment Amount (DZ)</label>
+                                    <input type="number" step="0.01" class="form-control" id="payment-amount" required>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-credit-card"></i> Record Payment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            
+                <!-- Payment List moved inside payments-content -->
+                <div class="card mt-4" id="payments-list-card">
                     <div class="card-header">
                         <h4>Payment List</h4>
                     </div>
                     <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="payment-search" placeholder="Search payments...">
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <div id="admin-payments-list">
                                 <!-- Payments will be loaded here -->
@@ -165,98 +240,15 @@
                         </div>
                     </div>
                 </div>
-              <!-- Replace existing payment form with this -->
-<div class="card mt-4">
-    <div class="card-header">
-        <h4>Payment Management</h4>
+ 
+            </div>
+        <!-- Payment Management Tab -->
+        <button id="payment-toggle" class="btn btn-primary rounded-pill fixed-bottom Start me-3 mb-3"
+            onclick="togglePaymentManagement()">
+            <i class="bi bi-credit-card fs-4"></i>
+        </button>
     </div>
-    <div class="card-body">
-        <form id="payment-form">
-            <div class="mb-3">
-                <label for="user-search" class="form-label">Search User (ID or Name)</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="user-search" placeholder="Start typing...">
-                    <button class="btn btn-outline-secondary" type="button" onclick="clearUserSearch()">
 
-                        <i class="bi bi-x"></i>
-                    </button>
-                    <button id="generate-qr" class="btn btn-primary mt-3">Generate User QR Code</button>
-                    <button id="scan-qr" class="btn btn-success">Scan QR Code</button>
-
-                </div>
-                <div id="user-search-results" class="mt-2 list-group"></div>
-            </div>
-            
-            <div id="selected-user-info" >
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">User Details</h5>
-                        <p class="mb-1"><strong>Name:</strong> <span id="user-name"></span></p>
-                        <p class="mb-1"><strong>Email:</strong> <span id="user-email"></span></p>
-                        <p class="mb-0"><strong>User ID:</strong> <span id="user-id"></span></p>
-
-                    </div>
-                   
-                </div>
-                <div class="modal fade" id="scannerModal" tabindex="-1">
-                    <div class="modal-dialog">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title">Scan QR Code</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                          <video id="scannerVideo" style="width: 100%;"></video>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                <div class="modal fade" id="qrModal" tabindex="-1">
-                    <div class="modal-dialog">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title">User QR Code</h5>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body text-center">
-                          <div id="qrCodeContainer"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Financial Summary</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-1">Total Orders: <span id="total-orders" class="fw-bold">0.00</span> DZ</p>
-                                <p class="mb-1">Total Paid: <span id="total-paid" class="fw-bold">0.00</span> DZ</p>
-                                <p class="mb-0">Remaining: <span id="remaining-balance" class="fw-bold text-danger">0.00</span> DZ</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="payment-amount" class="form-label">Payment Amount (DZ)</label>
-                    <input type="number" step="0.01" class="form-control" id="payment-amount" required>
-                </div>
-                <div class="mb-3">
-                    <label for="payment-date" class="form-label">Payment Date</label>
-                    <input type="date" class="form-control" id="payment-date" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-credit-card"></i> Record Payment
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-            </div>
-
-            <!-- Payment Management Tab -->
-           
-        </div>
     </div>
 
     <!-- User Dashboard -->
@@ -269,7 +261,7 @@
                     <p class="text-muted mb-0">Discover our premium selection</p>
                 </div>
             </div>
-            
+
             <div class="d-flex gap-2 order-md-2">
                 <button onclick="showProfile()" class="btn btn-primary">
                     <i class="bi bi-person-circle"></i> <span class="d-none d-md-inline">Profile</span>
@@ -283,14 +275,14 @@
                 </button>
             </div>
         </div>
-        
+
         <!-- Search and Filter Bar -->
-       
+
         <div id="profile-section" class="mt-4" style="display: none;">
             <div class="card">
                 <div class="card-header">
                     <h4 class="mb-0">Order History</h4>
-                    
+
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -305,13 +297,13 @@
                                         <i class="bi bi-arrow-left"></i> Back to Products
                                     </button>
                                 </div>
-                                
+
                             </div>
                         </div>
                         <div class="col-md-8">
                             <div id="user-orders-list" class="list-group">
                                 <!-- Orders will be loaded here -->
-                                
+
                             </div>
                         </div>
                     </div>
@@ -320,106 +312,115 @@
         </div>
         <!-- Product Grid -->
         <div class="row g-3" id="products-list">
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3">            <!-- Skeleton Loaders -->
-            <div class="col">
-                <div class="product-card skeleton-loader" style="height: 350px"></div>
-            </div>
-            <div class="col">
-                <div class="product-card skeleton-loader" style="height: 350px"></div>
-            </div>
-            <div class="col">
-                <div class="product-card skeleton-loader" style="height: 350px"></div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3"> <!-- Skeleton Loaders -->
+                <div class="col">
+                    <div class="product-card skeleton-loader" style="height: 350px"></div>
+                </div>
+                <div class="col">
+                    <div class="product-card skeleton-loader" style="height: 350px"></div>
+                </div>
+                <div class="col">
+                    <div class="product-card skeleton-loader" style="height: 350px"></div>
 
-            </div>
+                </div>
             </div>
         </div>
     </div>
-        <!-- Cart Modal -->
-<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down" >
-                <div class="modal-content">
-                    <div class="modal-header border-0">
-                        <h4 class="modal-title fw-bold">Order Summary</h4>
-                        <button type="button" 
-                        class="btn-close" 
-                        data-bs-dismiss="modal" 
-                        aria-label="Close"></button>                    </div>
-                    
-                    <div class="modal-body">
-                        <div class="container py-4">
-                            <div class="cart-list" id="cart-items">
-                                <!-- Cart items will be loaded here -->
-                            </div>
-                        </div>
-                        
-                        <div class="d-flex justify-content-between align-items-center mt-4 p-3 bg-light rounded-3">
-                            <h5 class="mb-0">Total:</h5>
-                            <h4 class="mb-0 text-primary">$<span id="cart-total">0.00</span></h4>
+    <!-- Cart Modal -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-fullscreen-md-down">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h4 class="modal-title fw-bold">Order Summary</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="container py-4">
+                        <div class="cart-list" id="cart-items">
+                            <!-- Cart items will be loaded here -->
                         </div>
                     </div>
-        
-                 <!-- Add this button inside the cart modal footer -->
-<div class="modal-footer border-0">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Shopping</button>
-    <button type="button" class="btn btn-primary px-5" onclick="checkout()">Checkout</button>
-</div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 p-3 bg-light rounded-3">
+                        <h5 class="mb-0">Total:</h5>
+                        <h4 class="mb-0 text-primary">$<span id="cart-total">0.00</span></h4>
+                    </div>
+                </div>
+
+                <!-- Add this button inside the cart modal footer -->
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Shopping</button>
+                    <button type="button" class="btn btn-primary px-5" onclick="checkout()">Checkout</button>
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" style="display: none;">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="productModalLabel">Create New Product</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="product-form">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="product-name" class="form-label">Product Name</label>
-                                    <input type="text" class="form-control" id="product-name" required>
-                                    <input type="hidden" id="product-id">
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="capacity" class="form-label">Capacity</label>
-                                    <input type="text" class="form-control" id="capacity" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="flavor" class="form-label">Flavor</label>
-                                    <input type="text" class="form-control" id="flavor" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="unit-price" class="form-label">Unit Price</label>
-                                    <input type="number" step="0.01" class="form-control" id="unit-price" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="quantity" class="form-label">Quantity</label>
-                                    <input type="number" class="form-control" id="quantity" required>
-                                </div>
+    </div>
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Create New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="product-form">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="product-name" class="form-label">Product Name</label>
+                                <input type="text" class="form-control" id="product-name" required>
+                                <input type="hidden" id="product-id">
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <button class="btn btn-primary w-100 mt-2" onclick="addToCart('PRODUCT_ID')">Add to Cart</button>
+                            <div class="col-md-6 mb-3">
+                                <label for="capacity" class="form-label">Capacity</label>
+                                <input type="text" class="form-control" id="capacity" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="flavor" class="form-label">Flavor</label>
+                                <input type="text" class="form-control" id="flavor" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="unit-price" class="form-label">Unit Price</label>
+                                <input type="number" step="0.01" class="form-control" id="unit-price" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="quantity" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button class="btn btn-primary w-100 mt-2" onclick="addToCart('PRODUCT_ID')">Add to
+                                Cart</button>
 
-                                <button type="submit" class="btn btn-primary">Add Product</button>
-                            </div></form>
-                    </div>
+                            <button type="submit" class="btn btn-primary">Add Product</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        
-<script src="scripts/firebase_config.js"></script>
-<script src="scripts/utils.js"></script>
-<script src="scripts/app.js"></script>
-<script src="scripts/auth.js"></script>
-<script src="scripts/order.js"></script>
-<script src="scripts/product.js"></script>
-<script src="scripts/shopping_cart.js"></script>
-<script src="scripts/profile.js"></script>
-<script src="scripts/payment-management.js"></script>
+    </div>
+    <div id="scannerModal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+        <div style="position: relative; width: 80%; max-width: 500px; margin: 2rem auto;">
+            <video id="scannerVideo" style="width: 100%;"></video>
+            <button onclick="stopScanner(); document.getElementById('scannerModal').style.display = 'none'"
+                style="position: absolute; top: 10px; right: 10px;" class="btn btn-danger">
+                Close.
+            </button>
+        </div>
+    </div>
+    <script src="scripts/firebase_config.js"></script>
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/auth.js"></script>
+    <script src="scripts/order.js"></script>
+    <script src="scripts/product.js"></script>
+    <script src="scripts/shopping_cart.js"></script>
+    <script src="scripts/profile.js"></script>
+    <script src="scripts/payment-management.js"></script>
 
-                      
+
 </body>
 
 </html>

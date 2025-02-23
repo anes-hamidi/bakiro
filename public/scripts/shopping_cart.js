@@ -39,7 +39,6 @@ function updateCartDisplay() {
         total += itemTotal;
 
         // JavaScript code to add items to cart
-// JavaScript code to add items to cart
 cartBody.innerHTML += `
 <div class="cart-item">
     <div class="item-info">
@@ -104,7 +103,6 @@ function updateCartStorage() {
     localStorage.setItem('cart', JSON.stringify(cart));
 }
 // Checkout function
-// Modified checkout function
 function checkout() {
     if (cart.length === 0) {
         alert('Your cart is empty!');

@@ -822,11 +822,33 @@ input {
     border: 1px solid #dee2e6;
     border-radius: 0.25rem;
 }
+#payment-toggle {
+    width: 56px;
+    height: 56px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+#payment-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
 
 .list-group-item-action {
     cursor: pointer;
     transition: background-color 0.15s ease;
 }
+#scannerModal video {
+    border-radius: 10px;
+    background: black;
+  } 
+  
+  #qrCodeContainer canvas {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px 0;
+  }
 
 .list-group-item-action:hover {
     background-color: #f8f9fa;

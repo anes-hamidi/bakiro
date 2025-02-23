@@ -15,12 +15,14 @@ document.getElementById('signup-form').addEventListener('submit', (e) => {
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const phone = document.getElementById('phone').value;
     const role = document.getElementById('role').value;
 
     auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             return db.collection('users').doc(userCredential.user.uid).set({
                 name: name,
+                phone: phone,
                 email: email,
                 role: role
             });

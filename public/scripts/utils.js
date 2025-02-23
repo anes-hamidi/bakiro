@@ -1,4 +1,9 @@
-function loadAdminOrders(searchTerm = '') {
+ 
+ document.getElementById('payment-search').addEventListener('input', () => {
+    loadPayments();
+});
+
+ function loadAdminOrders(searchTerm = '') {
     const ordersList = document.getElementById('admin-orders-list');
     ordersList.innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
 
@@ -31,11 +36,12 @@ function loadAdminOrders(searchTerm = '') {
                 return;
             }
 
-            filteredDocs.forEach(doc => {
+            filteredDocs.forEach( async doc =>  {
                 const order = doc.data();
                 const orderDate = order.createdAt.toDate().toLocaleDateString();
                 const total = order.items.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
-
+                const userDoc = await db.collection('users').doc(order.userId).get();
+                const userName = userDoc.exists ? userDoc.data().name : 'Unknown User';
                 ordersList.innerHTML += `
                     <div class="list-group-item mb-3">
                         <div class="d-flex justify-content-between">
@@ -43,7 +49,7 @@ function loadAdminOrders(searchTerm = '') {
                                 <h6 class="mb-1">Order #${doc.id}</h6>
                                 <div class="text-muted small">
                                     ${orderDate} • 
-                                    <span class="fw-medium">${order.userName}</span>
+                                    <span class="fw-medium">${userName}</span>
                                 </div>
                             </div>
                             <div class="text-end">

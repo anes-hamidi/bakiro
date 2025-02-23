@@ -9,6 +9,9 @@ function showAdminDashboard() {
 document.getElementById('auth-screen').style.display = 'none';
 document.getElementById('user-dashboard').style.display = 'none';
 document.getElementById('admin-dashboard').style.display = 'block';
+document.getElementById('payment-toggle').style.display = 'none';
+document.getElementById('payments-list-card').style.display = 'none';
+
 loadProducts();
 loadAdminOrders();
 }
@@ -37,6 +40,7 @@ document.getElementById('orders-content').classList.remove('show', 'active');
 e.target.classList.add('active');
 document.getElementById('orders-tab').classList.remove('active');
 document.getElementById('payments-tab').classList.remove('active');
+document.getElementById('payment-toggle').style.display = 'none';
 
 document.getElementById('payments-content').classList.remove('show', 'active');
 
@@ -51,6 +55,7 @@ document.getElementById('products-tab').classList.remove('active');
 document.getElementById('payments-tab').classList.remove('active');
 
 document.getElementById('payments-content').classList.remove('show', 'active');
+document.getElementById('payment-toggle').style.display = 'none';
 
 });
 
@@ -78,8 +83,9 @@ document.getElementById('payments-tab').addEventListener('click', (e) => {
     document.getElementById('orders-content').classList.remove('show', 'active');
     document.getElementById('products-tab').classList.remove('active');
     document.getElementById('products-content').classList.remove('show','active')
+    document.getElementById('payment-toggle').style.display = 'block';
 
     e.target.classList.add('active');
     document.getElementById('orders-tab').classList.remove('active');
-    
+    loadPayments();
 });
