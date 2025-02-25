@@ -114,7 +114,7 @@ function checkout() {
         userId: user.uid,
         items: cart,
         total: parseFloat(document.getElementById('cart-total').textContent),
-        status: 'pending',
+        status: 'awaiting_validation',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -154,7 +154,16 @@ function closeCartModal() {
     new bootstrap.Modal(document.getElementById('cartModal')).hide();
 }
 function removeFromCart(index) {
-    cart.splice(index, 1);
+    if (!confirm('Are you sure you want to delete this product?')) return;
+    
+    try {
+        cart.splice(index, 1);
     updateCartStorage();
     updateCartDisplay();
+    } catch (error) {
+        showToast(`Error deleting product: ${error.message}`, 'danger');
+        console.error('Delete error:', error);
+    }
+    
+    
 }

@@ -1,8 +1,54 @@
 let selectedUser = null;
 
 // User Search Fundocuctionality
-document.getElementById('payment-search').addEventListener('input', loadPayments);
-async function selectUser(user)  {
+document.getElementById('user-search').addEventListener('input', async function(e) {
+    const searchTerm = e.target.value.trim();
+    const resultsContainer = document.getElementById('user-search-results');
+    
+    if (searchTerm.length < 2) {
+        resultsContainer.innerHTML = '';
+        return;
+    }
+
+    try {
+        // Search by name
+        const nameQuery = db.collection('users')
+            .where('name', '>=', searchTerm)
+            .where('name', '<=', searchTerm + '\uf8ff')
+            .limit(5);
+
+        // Search by ID (document ID)
+        let idDoc = null;
+        try {
+            idDoc = await db.collection('users').doc(searchTerm).get();
+        } catch (error) {
+            console.log("Invalid document ID format");
+        }
+
+        const [nameSnapshot, idSnapshot] = await Promise.all([nameQuery.get(), idDoc]);
+        const users = [];
+
+        nameSnapshot.forEach(doc => {
+            users.push({ id: doc.id, ...doc.data() });
+        });
+
+        if (idDoc?.exists) {
+            users.push({ id: idDoc.id, ...idDoc.data() });
+        }
+
+        displayUserResults(users);
+    } catch (error) {
+        showToast('Error searching users: ' + error.message, 'danger');
+    }
+});
+document.getElementById('payment-search').addEventListener('input', () => {
+    loadPayments();
+});
+
+document.getElementById('Save Payment').addEventListener('click', async(e) => {
+    await recordPayment()
+});
+async function selectUser(user) {
     selectedUser = user;
     document.getElementById('user-search').value = user.name;
     document.getElementById('user-search-results').innerHTML = '';
@@ -12,10 +58,38 @@ async function selectUser(user)  {
     document.getElementById('user-name').textContent = user.name;
     document.getElementById('user-email').textContent = user.email;
     document.getElementById('user-id').textContent = user.id;
+
     // Load financial data
     await loadFinancialData(user.id);
-
 }
+
+function displayUserResults(users) {
+    const resultsContainer = document.getElementById('user-search-results');
+    resultsContainer.innerHTML = '';
+
+    if (users.length === 0) {
+        resultsContainer.innerHTML = '<div class="list-group-item">No users found</div>';
+        return;
+    }
+
+    users.forEach(user => {
+        const div = document.createElement('div');
+        div.className = 'list-group-item list-group-item-action';
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>${user.name}</strong><br>
+                    <small class="text-muted">${user.email}</small>
+                </div>
+                <small class="text-muted">ID: ${user.id}</small>
+            </div>
+        `;
+        div.onclick = () => selectUser(user);
+        resultsContainer.appendChild(div);
+    });
+}
+
+
 
 function displayUserResults(users) {   
 
@@ -107,7 +181,7 @@ document.getElementById('payment-form').addEventListener('submit', async (e) => 
         // Add payment to user's subcollection
         const paymentRef = await db.collection('users').doc(selectedUser.id).collection('payments').add({
             amount: amount,
-            resiver: currentUserName,
+            receiver: currentUserName,  // Correct spelling
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -116,13 +190,54 @@ document.getElementById('payment-form').addEventListener('submit', async (e) => 
         showToast('Payment recorded successfully', 'success');
         document.getElementById('payment-form').reset();
         generateInvoice(paymentRef.id, selectedUser, amount, currentUserName);
+        loadPayments();
 
     }  catch (error) {
         showToast('Error recording payment: ' + error.message, 'danger');
         console.error('Error recording payment:', error);
     }
 });
-function generateInvoice(paymentId, user, amount, resiver) {
+document.getElementById('paymentModal').addEventListener('button', async (e) => {
+    e.preventDefault();
+    
+    if (!selectedUser) {
+        showToast('Please select a user first', 'warning');
+        return;
+    }
+
+    const amount = parseFloat(document.getElementById('payment-amount').value);
+
+    if (isNaN(amount)) {
+        showToast('Please enter a valid payment amount', 'warning');
+        return;
+    }
+
+    try {
+        // Fetch current user's details
+        const currentUser = firebase.auth().currentUser;
+        const currentUserDoc = await db.collection('users').doc(currentUser.uid).get();
+        const currentUserName = currentUserDoc.exists ? currentUserDoc.data().name : 'Unknown User';
+
+        // Add payment to user's subcollection
+        const paymentRef = await db.collection('users').doc(selectedUser.id).collection('payments').add({
+            amount: amount,
+            receiver: currentUserName,  // Correct spelling
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Refresh financial data
+        await loadFinancialData(selectedUser.id);
+        showToast('Payment recorded successfully', 'success');
+        document.getElementById('payment-form').reset();
+        generateInvoice(paymentRef.id, selectedUser, amount, currentUserName);
+        loadPayments();
+
+    }  catch (error) {
+        showToast('Error recording payment: ' + error.message, 'danger');
+        console.error('Error recording payment:', error);
+    }
+});
+function generateInvoice(paymentId, user, amount, receiver) {
     const invoiceTemplate = `<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 680px; margin: 2rem auto; padding: 2.5rem; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
     <!-- Header Section -->
     <div style="border-bottom: 2px solid #f0f2f5; padding-bottom: 1.5rem; margin-bottom: 2rem;">
@@ -140,7 +255,7 @@ function generateInvoice(paymentId, user, amount, resiver) {
                 <h3 style="color: #57606f; margin: 0 0 0.5rem; font-size: 0.9rem; font-weight: 500;">PAYMENT DETAILS</h3>
                 <p style="margin: 0.25rem 0; color: #2f3542;">
                     Invoice ID: ${paymentId}<br>
-                    Receiver: ${resiver}
+                    Receiver: ${receiver}
                 </p>
             </div>
         </div>
@@ -166,6 +281,7 @@ function generateInvoice(paymentId, user, amount, resiver) {
     invoiceWindow.document.close();
     invoiceWindow.print();
 }
+
 function clearUserSearch() {
     document.getElementById('user-search').value = '';
     document.getElementById('user-search-results').innerHTML = '';
@@ -175,7 +291,22 @@ function clearUserSearch() {
     paymentsList.innerHTML = '';
 
 }
+async function fetchPaymentDetails(userId) {
+    try {
+        const paymentsSnapshot = await db.collection('users').doc(userId).collection('payments').get();
+        let totalPaid = 0;
 
+        paymentsSnapshot.forEach(doc => {
+            const payment = doc.data();
+            totalPaid += payment.amount;
+        });
+
+        return totalPaid ;
+    } catch (error) {
+        console.error('Error fetching payment details:', error);
+        return 0;
+    }
+}
 // Update loadPayments to show all payments
 // Update loadPayments to show all payments
 async function loadPayments() {
@@ -204,7 +335,6 @@ async function loadPayments() {
                 };
             })
         );
-
         // Filter payments based on search term
         const filteredPayments = paymentsWithUsers.filter(({ id, payment, user }) => {
             const searchFields = [
@@ -230,13 +360,13 @@ async function loadPayments() {
                 <div class="list-group-item mb-3">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <h6 class="mb-1">Customer ${user.name || 'Unknown User'}</h6>
+                            <h6 class="mb-1">Client ${user.name || 'Unknown User'}</h6>
                             <small class="text-muted">
                                 • Amount: DZ <span style="font-weight: bold; color: #28a745;">${payment.amount.toFixed(2)}</span>
-                                • Receiver: <span style="font-weight: bold; color:rgb(255, 0, 106);">${payment.resiver}</span>
+                                • Receiver: <span style="font-weight: bold; color: #007bff;">${payment.receiver}</span>
                             </small>
                         </div>
-                        <small class="text-muted"> • Payment Date:<span style="font-weight: bold; color: #007bff;">
+                        <small class="text-muted">Payment Date:<span style="font-weight: bold; color: #007bff;">
                             ${createdAt.toLocaleString('en-GB', { 
                                 day: '2-digit', 
                                 month: '2-digit', 
@@ -260,13 +390,73 @@ function togglePaymentManagement() {
     const paymentsList = document.getElementById('payments-list-card');
     const toggleBtn = document.getElementById('payment-toggle');
     
-    if (paymentsContent.style.display === 'none') {
-        paymentsContent.style.display = 'block';
-        paymentsList.style.display = 'none';  // Hide payments list when showing management
+    if (paymentsContent.style.display === 'block') {
+        paymentsContent.style.display = 'none';
+        paymentsList.style.display = 'block';  // Hide payments list when showing management
         toggleBtn.innerHTML = '<i class="bi bi-x fs-4"></i>';  // Change icon to X
     } else {
-        paymentsContent.style.display = 'none';
-        paymentsList.style.display = 'block';  // Show payments list when hiding management
+        paymentsContent.style.display = 'block';
+        paymentsList.style.display = 'none';  // Show payments list when hiding management
         toggleBtn.innerHTML = '<i class="bi bi-credit-card fs-4"></i>';
+    }
+}
+function showPaymentModal(orderId) {
+    document.getElementById('order-id-unique').value = orderId;
+    new bootstrap.Modal(document.getElementById('paymentModal')).show();
+}
+
+async function recordPayment() {
+    const orderId = document.getElementById('order-id-unique').value;
+    const amount = parseFloat(document.getElementById('payment-amount-unique').value);
+    
+    
+        if (isNaN(amount) || amount <= 0) {
+        showToast('Please enter a valid payment amount', 'warning');
+        return;
+    }
+
+    try {
+        const orderRef = db.collection('orders').doc(orderId);
+        const orderDoc = await orderRef.get();
+        const order = orderDoc.data();
+        const userRef = db.collection('users').doc(order.userId);
+        const userDoc = await userRef.get();
+        const currentUser = firebase.auth().currentUser;
+    const currentUserDoc = await db.collection('users').doc(currentUser.uid).get();
+    const currentUserName = currentUserDoc.exists ? currentUserDoc.data().name : 'Unknown User';
+       
+        
+        
+        if (!userDoc.exists) {
+            showToast('User not found', 'danger');
+            return;
+        }
+
+      
+        const paymentsSnapshot = await userRef.collection('payments').add({
+            amount: amount,
+            receiver: currentUserName,  // Correct spelling
+         
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          const totalPaid = paymentsSnapshot.docs.reduce((sum, doc) => sum + doc.data().amount, 0);
+          const remainingBalance = order.total - totalPaid;
+        await userRef.update({
+            totalPaid: totalPaid,
+            remainingBalance: remainingBalance
+        });
+
+        await orderRef.update({
+            totalPaid: totalPaid,
+            remainingBalance: remainingBalance
+        });
+        generateOrderInvoice(orderId)
+
+        showToast('Payment recorded successfully', 'success');
+        new bootstrap.Modal(document.getElementById('paymentModal')).hide();
+        loadAdminOrders();
+    } catch (error) {
+        showToast('Error recording payment: ' + error.message, 'danger');
+        console.error('Error recording payment:', error);
     }
 }

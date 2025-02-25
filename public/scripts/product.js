@@ -5,6 +5,8 @@ document.getElementById('add-product-btn').addEventListener('click', () => {
     document.getElementById('product-form').reset();
     document.getElementById('product-id').value = '';
     document.getElementById('productModalLabel').textContent = 'Create New Product';
+    document.getElementById('sub-btn').textContent = 'Create';
+
     new bootstrap.Modal(document.getElementById('productModal')).show();
 });
 document.getElementById('product-form').addEventListener('submit', async (e) => {
@@ -40,6 +42,7 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
             editButton.id = 'edit-existing-product-btn';
             editButton.className = 'btn btn-primary mt-2';
             editButton.textContent = 'Edit Existing Product';
+
             editButton.onclick = () => editProduct(existingProductId);
             document.getElementById('product-form').appendChild(editButton);
             return;
@@ -56,10 +59,13 @@ document.getElementById('product-form').addEventListener('submit', async (e) => 
 
         if (productId) {
             // Update existing product
+            document.getElementById('productModalLabel').textContent = 'Update Product';
             await db.collection('products').doc(productId).update(product);
             showToast('Product updated successfully', 'success');
+
         } else {
             // Create new product
+
             product.createdAt = firebase.firestore.FieldValue.serverTimestamp();
             await db.collection('products').add(product);
             showToast('Product created successfully', 'success');
@@ -195,8 +201,8 @@ function loadUserProducts() {
                     <input type="number" 
                         id="qty-${productId}"
                         class="form-control" 
-                        value="1" 
-                        min="1" 
+                        value="0" 
+                        min="0" 
                         max="${product.quantity}"
                         aria-label="Quantity"
                         style="width: 70px;">
@@ -240,6 +246,9 @@ async function editProduct(productId) {
     const form = document.getElementById('product-form');
     
     // Set the product ID in hidden field
+    document.getElementById('productModalLabel').textContent = 'Update Product';
+    document.getElementById('sub-btn').textContent = 'Update';
+
     document.getElementById('product-id').value = productId;
     
     // Populate form fields

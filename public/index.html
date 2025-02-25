@@ -109,6 +109,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="#" id="payments-tab">Payment Management</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="customers-tab">Customer Management</a>
+            </li>
         </ul>
 
         <div class="tab-content mt-3">
@@ -161,7 +164,7 @@
                 <div class="card mt-4" id="paymentM">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h4>Payment Management</h4>
-                        
+
                     </div>
                     <div class="card-body">
                         <form id="payment-form">
@@ -221,7 +224,7 @@
                         </form>
                     </div>
                 </div>
-            
+
                 <!-- Payment List moved inside payments-content -->
                 <div class="card mt-4" id="payments-list-card">
                     <div class="card-header">
@@ -230,7 +233,8 @@
                     <div class="card-body">
                         <div class="row mb-3">
                             <div class="col-md-4">
-                                <input type="text" class="form-control" id="payment-search" placeholder="Search payments...">
+                                <input type="text" class="form-control" id="payment-search"
+                                    placeholder="Search payments...">
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -240,14 +244,33 @@
                         </div>
                     </div>
                 </div>
- 
+
             </div>
-        <!-- Payment Management Tab -->
-        <button id="payment-toggle" class="btn btn-primary rounded-pill fixed-bottom Start me-3 mb-3"
-            onclick="togglePaymentManagement()">
-            <i class="bi bi-credit-card fs-4"></i>
-        </button>
-    </div>
+            <!-- Payment Management Tab -->
+            <button id="payment-toggle" class="btn btn-primary rounded-pill fixed-bottom Start me-3 mb-3"
+                onclick="togglePaymentManagement()">
+                <i class="bi bi-credit-card fs-4"></i>
+            </button>
+            <div id="customers-content" class="tab-pane fade">
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4>Customer List</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <input type="text" class="form-control" id="customer-search" placeholder="Search customers...">
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <div id="admin-customers-list">
+                                <!-- Customers will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -360,7 +383,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="productModalLabel">Create New Product</h5>
+                    <h5 class="modal-title" id="productModalLabel"></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -390,10 +413,9 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button class="btn btn-primary w-100 mt-2" onclick="addToCart('PRODUCT_ID')">Add to
-                                Cart</button>
 
-                            <button type="submit" class="btn btn-primary">Add Product</button>
+
+                            <button type="submit" class="btn btn-primary" id="sub-btn"></button>
                         </div>
                     </form>
                 </div>
@@ -410,8 +432,62 @@
             </button>
         </div>
     </div>
+    <!-- Add this modal to the index.html file -->
+<div class="modal fade" id="customerDetailsModal" tabindex="-1" aria-labelledby="customerDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customerDetailsModalLabel">Customer Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="customer-details">
+                    <!-- Customer details will be loaded here -->
+                </div>
+                <div id="customer-orders">
+                    <!-- Customer orders will be loaded here -->
+                </div>
+                <div id="customer-payments">
+                    <!-- Customer payments will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="showFactureForm('${userId}')">Add Facture Info</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Payment Modal -->
+
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentModalLabel">Record Payment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="payment-form-unique">
+                    <div class="mb-3">
+                        <label for="payment-amount-unique" class="form-label">Payment Amount (DZ)</label>
+                        <input type="number" step="0.01" class="form-control" id="payment-amount-unique" required>
+                    </div>
+                 
+                    <input type="hidden" id="order-id-unique">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="Save Payment">Save Payment</button>
+            </div>
+        </div>
+    </div>
+</div>
     <script src="scripts/firebase_config.js"></script>
     <script src="scripts/utils.js"></script>
+
+    <script src="scripts/customers.js"></script>
     <script src="scripts/app.js"></script>
     <script src="scripts/auth.js"></script>
     <script src="scripts/order.js"></script>

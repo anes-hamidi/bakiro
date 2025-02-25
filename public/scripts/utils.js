@@ -1,7 +1,5 @@
  
- document.getElementById('payment-search').addEventListener('input', () => {
-    loadPayments();
-});
+
 
  function loadAdminOrders(searchTerm = '') {
     const ordersList = document.getElementById('admin-orders-list');
@@ -55,12 +53,13 @@
                             <div class="text-end">
                                 <select class="form-select status-select ${getStatusBadgeClass(order.status)}" 
                                         data-order-id="${doc.id}" 
-                                        aria-label="Order status">
-                                    <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                    <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
-                                    <option value="completed" ${order.status === 'completed' ? 'selected' : ''}>Completed</option>
-                                    <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                                </select>
+                                   aria-label="Order status"
+                ${['completed', 'cancelled'].includes(order.status) ? 'disabled' : ''}>
+          ${getStatusOptions(order.status).map(opt => `
+            <option value="${opt.value}" ${order.status === opt.value ? 'selected' : ''}>
+              ${opt.label}
+            </option>
+          `).join('')} </select>
                                 <div class="fw-bold mt-1">DZ ${total.toFixed(2)}</div>
                             </div>
                         </div>
@@ -71,6 +70,10 @@
                                 data-bs-target="#orderDetails-${doc.id}">
                                 View Details
                             </button>
+                                              <button class="btn btn-outline-success" 
+        onclick="generateOrderInvoice('${doc.id}')">
+  Generate Invoice
+</button>
                         </div>
                         <div class="collapse mt-2" id="orderDetails-${doc.id}">
                             <ul class="list-group list-group-flush">
@@ -82,6 +85,7 @@
                                 `).join('')}
                             </ul>
                             <div class="mt-2">
+          
                                 <button class="btn btn-sm btn-outline-danger" 
                                     type="button" 
                                     onclick="deleteOrder('${doc.id}')">
@@ -97,3 +101,44 @@
             ordersList.innerHTML = '<div class="alert alert-danger">Error loading orders.</div>';
         });
 }
+// Generate invoice
+
+function getStatusOptions(currentStatus) {
+    const options = [];
+    switch (currentStatus) {
+      case 'awaiting_validation':
+        options.push(
+            {value: currentStatus, label: 'validate'},
+
+          { value: 'pending', label: 'Waiting' },
+          { value: 'cancelled', label: 'Cancel' }
+        );
+        break;
+      case 'pending':
+        options.push(
+            {value: currentStatus, label: 'Waiting'},
+          { value: 'processing', label: 'Processing' },
+          { value: 'completed', label: 'Complete' },
+          { value: 'cancelled', label: 'Cancel' }
+        );
+        break;
+      case 'processing':
+        options.push(
+            {value: currentStatus, label: 'Processing'},
+
+          { value: 'completed', label: 'Complete' },
+          { value: 'cancelled', label: 'Cancel' }
+        );
+        break;
+      case 'completed':
+      case 'cancelled':
+        options.push({ 
+          value: currentStatus, 
+          label: 'Archive'
+        });
+        break;
+      default:
+        options.push({ value: currentStatus, label: 'Unknown Status' });
+    }
+    return options;
+  }
